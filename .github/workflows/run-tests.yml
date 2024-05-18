@@ -39,9 +39,10 @@ jobs:
 
         pip3 install .[tests]
 
-        # Smoke test generated entrypoint script
+        # Reject cycles from own codebase, and smoke test entrypoint script
         no-cyclic-imports --version
         no-cyclic-imports --help
+        no-cyclic-imports --no-follow no_cyclic_imports/
 
         coverage run -a -m pytest -v -s
         ! coverage run -a -m no_cyclic_imports  # additional smoke test on venv content
