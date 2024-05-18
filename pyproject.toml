@@ -51,3 +51,10 @@ Homepage = "https://github.com/hartwork/no-cyclic-imports"
 
 [tool.hatch.version]
 path = "no_cyclic_imports/version.py"
+
+[tool.coverage.run]
+branch = true
+source_pkgs = ["no_cyclic_imports"]
+
+[tool.coverage.report]
+skip_empty = true
