@@ -39,6 +39,6 @@ jobs:
 
         pip3 install .[tests]
 
-        coverage run -m pytest -v -s
-        ! coverage run -m no_cyclic_imports  # additional smoke test on venv content
+        coverage run -a -m pytest -v -s
+        ! coverage run -a -m no_cyclic_imports  # additional smoke test on venv content
         coverage report
