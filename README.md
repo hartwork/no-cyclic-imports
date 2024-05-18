@@ -1,5 +1,7 @@
 # no-cyclic-imports
 
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Run the test suite](https://github.com/hartwork/no-cyclic-imports/actions/workflows/run-tests.yml/badge.svg)](https://github.com/hartwork/no-cyclic-imports/actions/workflows/run-tests.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/no-cyclic-imports.svg)](https://pypi.org/project/no-cyclic-imports)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/no-cyclic-imports.svg)](https://pypi.org/project/no-cyclic-imports)
 
