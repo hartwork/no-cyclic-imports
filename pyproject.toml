@@ -58,3 +58,24 @@ source_pkgs = ["no_cyclic_imports"]
 
 [tool.coverage.report]
 skip_empty = true
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "ALL",
+]
+ignore = [
+  "ANN",  # flake8-annotations
+  "D1",  # Missing docstring in public ...
+  "D203",  # one-blank-line-before-class, to unclash with D211
+  "D212",  # multi-line-summary-first-line, to unclash with D213
+  "G004",  # Logging statement uses f-string
+  "S101",  # Use of `assert` detected
+  "SLF001",  # Private member accessed
+  "PT",  # flake8-pytest-style
+  "PTH",  # flake8-use-pathlib
+  "T201",  # `print` found
+  "TID252",  # Prefer absolute imports over relative imports from parent modules
+]
