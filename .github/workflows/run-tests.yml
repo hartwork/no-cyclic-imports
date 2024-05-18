@@ -1,0 +1,44 @@
+# Copyright (c) 2024 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under Affero GPL v3 or later
+
+name: Run the test suite
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 2 * * 5'  # Every Friday at 2am
+  workflow_dispatch:
+
+# Drop permissions to minimum for security
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    name: Run the test suite
+    strategy:
+      matrix:
+        python-version: ['3.10', 3.12]  # no particular need for in-between versions
+        runs-on: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+    - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633  # v4.1.2
+    - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d  # v5.1.0
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Run the test suite under coverage
+      run: |
+        set -x
+
+        python3 --version
+
+        python3 -m venv venv/
+        source venv/bin/activate
+
+        pip3 install .[tests]
+
+        coverage run -m pytest -v -s
+        ! coverage run -m no_cyclic_imports  # additional smoke test on venv content
+        coverage report
