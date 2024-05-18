@@ -1,0 +1,53 @@
+# Copyright (c) 2024 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under Affero GPL v3 or later
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "no-cyclic-imports"
+dynamic = ["version"]
+description = 'Tool to detect and report on cyclic imports in a Python codebase'
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-or-later" }
+keywords = [
+  "automation",
+  "lint",
+  "linter",
+]
+authors = [
+  { name = "Sebastian Pipping", email = "sebastian@pipping.org" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+  "import-deps",
+  "networkx",
+  "stdlib-list",
+]
+
+[project.optional-dependencies]
+tests = [
+  "coverage",
+  "parameterized",
+  "pytest",
+]
+
+[project.scripts]
+no-cyclic-imports = "no_cyclic_imports.__main__:_main"
+
+[project.urls]
+Homepage = "https://github.com/hartwork/no-cyclic-imports"
+
+[tool.hatch.version]
+path = "no_cyclic_imports/version.py"
