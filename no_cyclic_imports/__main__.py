@@ -63,7 +63,7 @@ def _inner_main(argv: list[str] | None = None):
 
     cycles_count = run(config.paths, follow=bool(config.follow), file_=sys.stdout)
 
-    exit_code = 1 if cycles_count else 0
+    exit_code = 2 if cycles_count else 0
 
     sys.exit(exit_code)
 
