@@ -78,7 +78,7 @@ class MainTest(TestCase):
                 *(*extra_argv, tempdir),
             )
 
-        self.assertEqual(exit_code, 1)
+        self.assertEqual(exit_code, 2)
         self.assertEqual(
             dedent(f"""\
                 {package_name} -> {package_a_name} -> {package_b_name} -> {package_name}
@@ -109,7 +109,7 @@ class MainTest(TestCase):
                 )
 
         if expecting_follow:
-            self.assertEqual(exit_code, 1)
+            self.assertEqual(exit_code, 2)
             self.assertEqual(
                 dedent(f"""\
                     {package_name} -> {package_a_name} -> {package_b_name} -> {package_name}

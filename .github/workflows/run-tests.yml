@@ -45,5 +45,9 @@ jobs:
         no-cyclic-imports --no-follow no_cyclic_imports/
 
         coverage run -a -m pytest -v -s
-        ! coverage run -a -m no_cyclic_imports  # additional smoke test on venv content
+        (
+            set +e
+            coverage run -a -m no_cyclic_imports  # additional smoke test on venv content
+            [[ $? -eq 2 ]]
+        )
         coverage report
