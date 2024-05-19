@@ -10,7 +10,7 @@ from ._engine import run
 from .version import VERSION
 
 
-def _main(argv: list[str] | None = None):
+def _inner_main(argv: list[str] | None = None):
     if argv is None:
         argv = sys.argv
 
@@ -68,5 +68,14 @@ def _main(argv: list[str] | None = None):
     sys.exit(exit_code)
 
 
+def _main():
+    try:
+        _inner_main()
+    except KeyboardInterrupt:
+        import signal
+
+        sys.exit(128 + signal.SIGINT)
+
+
 if __name__ == "__main__":
-    _main(sys.argv)
+    _main()
