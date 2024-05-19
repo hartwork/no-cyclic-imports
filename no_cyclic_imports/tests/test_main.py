@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 from parameterized import parameterized
 
-from ..__main__ import _main
+from ..__main__ import _inner_main
 from ..version import VERSION
 from .factories import add_cyclic_import_to
 
@@ -26,7 +26,7 @@ class MainTest(TestCase):
             ) as stderr,
             self.assertRaises(SystemExit) as catcher,
         ):
-            _main(["dummy", *argv_one_plus])
+            _inner_main(["dummy", *argv_one_plus])
 
         exit_code = catcher.exception.code
 
