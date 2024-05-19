@@ -66,6 +66,11 @@ def run(abs_paths: list[str], *, follow: bool, file_: IO) -> int:
     toplevel_packages = ToplevelCollector()
 
     for abs_path in abs_paths:
+        if not os.path.exists(abs_path):
+            # This will raise FileNotFoundError the way that stdlib does:
+            open(abs_path)  # noqa: SIM115
+            raise AssertionError  # avoiding "assert" in case of "python3 -O"
+
         if os.path.isdir(abs_path):
             # Find all .py files
             _logger.info(
