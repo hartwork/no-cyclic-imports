@@ -61,9 +61,18 @@ def _inner_main(argv: list[str] | None = None):
         force=True,
     )
 
-    cycles_count = run(config.paths, follow=bool(config.follow), file_=sys.stdout)
+    exit_code = 1
+    try:
+        cycles_count = run(config.paths, follow=bool(config.follow), file_=sys.stdout)
+    except Exception as e:  # noqa: BLE001
+        if config.debug:
+            import traceback
 
-    exit_code = 2 if cycles_count else 0
+            traceback.print_exc()
+        else:
+            logging.error(e)  # noqa: TRY400
+    else:
+        exit_code = 2 if cycles_count else 0
 
     sys.exit(exit_code)
 

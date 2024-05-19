@@ -83,7 +83,7 @@ def determine_source_module_name(abs_path: str) -> str:
     abs_path_backup = abs_path
 
     if not abs_path.endswith(".py"):
-        raise ValueError(f"{abs_path} does not end in .py")  # noqa: EM102, TRY003
+        raise ValueError(f"Path {abs_path!r} does not end in '.py'.")  # noqa: EM102, TRY003
     abs_path = abs_path[: -len(".py")]
 
     parts = []
