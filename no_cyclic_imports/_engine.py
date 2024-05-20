@@ -53,7 +53,7 @@ def _report_cycles(
     count_cycles = len(lines)
 
     if lines:
-        print("\n".join(sorted(lines)), file=file_)
+        print("\n".join(sorted(lines, key=lambda line: line.lower())), file=file_)
         print(file=file_)
 
     print(f"{count_cycles} cycle(s).")
