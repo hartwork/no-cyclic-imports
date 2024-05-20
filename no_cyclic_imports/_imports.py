@@ -141,6 +141,13 @@ def determine_target_module_name(
     return target_module
 
 
+def _wrapped_ast_imports(abs_path):
+    try:
+        yield from ast_imports(abs_path)
+    except UnicodeDecodeError as e:
+        _logger.warning(f"Parse error for file {abs_path!r}: {e}")
+
+
 class ImportGraph:
     def __init__(self):
         self._imports_from = {}
@@ -173,7 +180,12 @@ class ImportGraph:
             set(),
         )
 
-        for module_name_or_none, object_name, as_name, depth_or_none in ast_imports(
+        for (
+            module_name_or_none,
+            object_name,
+            as_name,
+            depth_or_none,
+        ) in _wrapped_ast_imports(
             abs_path,
         ):
             target_module = determine_target_module_name(
