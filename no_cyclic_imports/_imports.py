@@ -120,18 +120,17 @@ def determine_target_module_name(
 
     if depth_or_none is None:
         if module_name_or_none is None:
-            target_module = object_name  # case "import <object_name>"
+            target_module_split = object_name.split(".")  # case "import <object_name>"
         else:
             # case "from <module_name_or_none> import <object_name>"
-            target_module = module_name_or_none
+            target_module_split = module_name_or_none.split(".")
     else:  # case "from [..] import [..]"
+        parent_package_split = source_module_split[:-depth_or_none]
         if module_name_or_none is None:
-            target_module_path = source_module_split[:-depth_or_none]
+            target_module_split = parent_package_split
         else:
-            target_module_path = source_module_split[:-depth_or_none] + [
-                module_name_or_none,
-            ]
-        target_module = ".".join(target_module_path)
+            target_module_split = parent_package_split + module_name_or_none.split(".")
+    target_module = ".".join(target_module_split)
 
     _logger.debug(
         f"Import {(module_name_or_none, object_name, as_name, depth_or_none)}"
