@@ -6,7 +6,7 @@ import sys
 from io import StringIO
 from tempfile import TemporaryDirectory
 from textwrap import dedent
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 from unittest.mock import patch
 
 from parameterized import parameterized
@@ -91,7 +91,6 @@ class MainTest(TestCase):
         self.assertEqual("no-cyclic-imports: [INFO] " in stderr, expecting_info_lines)
         self.assertEqual("no-cyclic-imports: [DEBUG] " in stderr, expecting_debug_lines)
 
-    @expectedFailure
     def test_short_cycle(
         self,
     ):
