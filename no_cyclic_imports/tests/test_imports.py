@@ -97,32 +97,38 @@ class DetermineTargetModuleName(TestCase):
             (
                 "from package123 import symbol123",
                 ("package123", "symbol123", None, 0),
-                ["package123"],
+                ["package123", "package123.symbol123"],
             ),
             (
                 "from package123 import symbol123 as alias123",
                 ("package123", "symbol123", "alias123", 0),
-                ["package123"],
+                ["package123", "package123.symbol123"],
             ),
             (
                 "from . import symbol123",
                 (None, "symbol123", None, 1),
-                ["no_cyclic_imports.tests"],
+                ["no_cyclic_imports.tests.symbol123"],
             ),
             (
                 "from .. import symbol123",
                 (None, "symbol123", None, 2),
-                ["no_cyclic_imports"],
+                ["no_cyclic_imports.symbol123"],
             ),
             (
                 "from .module123 import symbol123",
                 ("module123", "symbol123", None, 1),
-                ["no_cyclic_imports.tests.module123"],
+                [
+                    "no_cyclic_imports.tests.module123",
+                    "no_cyclic_imports.tests.module123.symbol123",
+                ],
             ),
             (
                 "from ..module123 import symbol123",
                 ("module123", "symbol123", None, 2),
-                ["no_cyclic_imports.module123"],
+                [
+                    "no_cyclic_imports.module123",
+                    "no_cyclic_imports.module123.symbol123",
+                ],
             ),
         ],
     )

@@ -4,6 +4,7 @@
 import logging
 import os.path
 import sys
+from itertools import takewhile
 
 from import_deps import ast_imports
 from networkx import DiGraph, chordless_cycles
@@ -119,13 +120,9 @@ def determine_target_module_names(
     source_module_split = source_module.split(".")
 
     target_module_split = [
-        *(source_module_split[:-depth_or_none] if depth_or_none is not None else []),
+        *(source_module_split[:-depth_or_none] if depth_or_none else []),
         *(module_name_or_none.split(".") if module_name_or_none is not None else []),
-        *(
-            object_name.split(".")
-            if module_name_or_none is None and depth_or_none is None
-            else []
-        ),
+        *(object_name.split(".")),
     ]
 
     target_module = ".".join(target_module_split)
@@ -135,7 +132,18 @@ def determine_target_module_names(
         f" from module {source_module!r} found to target module {target_module!r}.",
     )
 
-    return [target_module]
+    common_ancestor = [
+        t[0]
+        for t in takewhile(
+            lambda m: m[0] == m[1],
+            zip(target_module_split, source_module_split, strict=False),
+        )
+    ]
+
+    return [
+        ".".join(target_module_split[:length])
+        for length in range(len(common_ancestor) + 1, len(target_module_split) + 1)
+    ]
 
 
 def _wrapped_ast_imports(abs_path):
