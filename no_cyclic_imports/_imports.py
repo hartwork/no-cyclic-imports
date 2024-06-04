@@ -118,18 +118,16 @@ def determine_target_module_name(
 ) -> str:
     source_module_split = source_module.split(".")
 
-    if depth_or_none is None:
-        if module_name_or_none is None:
-            target_module_split = object_name.split(".")  # case "import <object_name>"
-        else:
-            # case "from <module_name_or_none> import <object_name>"
-            target_module_split = module_name_or_none.split(".")
-    else:  # case "from [..] import [..]"
-        parent_package_split = source_module_split[:-depth_or_none]
-        if module_name_or_none is None:
-            target_module_split = parent_package_split
-        else:
-            target_module_split = parent_package_split + module_name_or_none.split(".")
+    target_module_split = [
+        *(source_module_split[:-depth_or_none] if depth_or_none is not None else []),
+        *(module_name_or_none.split(".") if module_name_or_none is not None else []),
+        *(
+            object_name.split(".")
+            if module_name_or_none is None and depth_or_none is None
+            else []
+        ),
+    ]
+
     target_module = ".".join(target_module_split)
 
     _logger.debug(
