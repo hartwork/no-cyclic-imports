@@ -109,13 +109,13 @@ def without_dot_init(module_name):
     return module_name[: -len(".__init__")]
 
 
-def determine_target_module_name(
+def determine_target_module_names(
     source_module: str,
     module_name_or_none: str | None,
     object_name: str,
     as_name: str | None,
     depth_or_none: int | None,
-) -> str:
+) -> list[str]:
     source_module_split = source_module.split(".")
 
     target_module_split = [
@@ -135,7 +135,7 @@ def determine_target_module_name(
         f" from module {source_module!r} found to target module {target_module!r}.",
     )
 
-    return target_module
+    return [target_module]
 
 
 def _wrapped_ast_imports(abs_path):
@@ -185,23 +185,26 @@ class ImportGraph:
         ) in _wrapped_ast_imports(
             abs_path,
         ):
-            target_module = determine_target_module_name(
+            target_module_candidates = determine_target_module_names(
                 source_module,
                 module_name_or_none,
                 object_name,
                 as_name,
                 depth_or_none,
             )
-            target_module = without_dot_init(target_module)
+            for target_module_candidate in map(
+                without_dot_init,
+                target_module_candidates,
+            ):
+                if in_standard_library(target_module_candidate):
+                    continue
 
-            if in_standard_library(target_module):
-                continue
-
-            if target_module not in target_modules:
-                _logger.info(
-                    f"Recording import from {source_module!r} to {target_module!r}...",
-                )
-            target_modules.add(target_module)
+                if target_module_candidate not in target_modules:
+                    _logger.info(
+                        f"Recording import from {source_module!r}"
+                        f"to {target_module_candidate!r}...",
+                    )
+                target_modules.add(target_module_candidate)
 
         if follow and target_modules:
             for module_name in target_modules:
