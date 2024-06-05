@@ -4,7 +4,6 @@
 import logging
 import os.path
 import sys
-from itertools import takewhile
 
 from import_deps import ast_imports
 from networkx import DiGraph, chordless_cycles
@@ -119,11 +118,31 @@ def determine_target_module_names(
 ) -> list[str]:
     source_module_split = source_module.split(".")
 
-    target_module_split = [
-        *(source_module_split[:-depth_or_none] if depth_or_none else []),
+    target_object_split = [
+        *(
+            source_module_split[:-depth_or_none] if depth_or_none else []
+        ),  # i.e., if depth_or_none in [None, 0]
         *(module_name_or_none.split(".") if module_name_or_none is not None else []),
         *(object_name.split(".")),
     ]
+
+    target_object = ".".join(target_object_split)
+
+    # if the target object does not correspond to a file or directory,
+    # it must be a symbol in a `.py` file,
+    # hence the target module is one level up.
+    try:
+        determine_path_of(target_object)
+        target_is_module = True
+    except PythonSourceNotFoundError:
+        target_is_module = False
+
+    if target_is_module:
+        target_module_split = target_object_split
+    else:
+        target_module_split = target_object_split[:-1]
+
+    assert len(target_module_split) >= 1
 
     target_module = ".".join(target_module_split)
 
@@ -132,18 +151,19 @@ def determine_target_module_names(
         f" from module {source_module!r} found to target module {target_module!r}.",
     )
 
-    common_ancestor = [
-        t[0]
-        for t in takewhile(
-            lambda m: m[0] == m[1],
-            zip(target_module_split, source_module_split, strict=False),
-        )
+    source_module_provenance = [
+        ".".join(source_module_split[:i])
+        for i in range(1, len(source_module_split) + 1)
     ]
 
-    return [
-        ".".join(target_module_split[:length])
-        for length in range(len(common_ancestor) + 1, len(target_module_split) + 1)
-    ]
+    implicit_target_modules = []
+    for j in range(len(target_module_split) - 1, 0, -1):
+        ancestor = ".".join(target_module_split[:j])
+        if ancestor in source_module_provenance:
+            break
+        implicit_target_modules.append(ancestor)
+
+    return [target_module, *implicit_target_modules]
 
 
 def _wrapped_ast_imports(abs_path):

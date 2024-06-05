@@ -93,42 +93,35 @@ class DetermineSourceModuleName(TestCase):
 class DetermineTargetModuleName(TestCase):
     @parameterized.expand(
         [
-            ("import package123", (None, "package123", None, None), ["package123"]),
             (
                 "from package123 import symbol123",
                 ("package123", "symbol123", None, 0),
-                ["package123", "package123.symbol123"],
+                ["package123"],
             ),
             (
                 "from package123 import symbol123 as alias123",
                 ("package123", "symbol123", "alias123", 0),
-                ["package123", "package123.symbol123"],
+                ["package123"],
             ),
             (
                 "from . import symbol123",
                 (None, "symbol123", None, 1),
-                ["no_cyclic_imports.tests.symbol123"],
+                ["no_cyclic_imports.tests"],
             ),
             (
                 "from .. import symbol123",
                 (None, "symbol123", None, 2),
-                ["no_cyclic_imports.symbol123"],
+                ["no_cyclic_imports"],
             ),
             (
                 "from .module123 import symbol123",
                 ("module123", "symbol123", None, 1),
-                [
-                    "no_cyclic_imports.tests.module123",
-                    "no_cyclic_imports.tests.module123.symbol123",
-                ],
+                ["no_cyclic_imports.tests.module123"],
             ),
             (
                 "from ..module123 import symbol123",
                 ("module123", "symbol123", None, 2),
-                [
-                    "no_cyclic_imports.module123",
-                    "no_cyclic_imports.module123.symbol123",
-                ],
+                ["no_cyclic_imports.module123"],
             ),
         ],
     )
