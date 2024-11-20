@@ -4,6 +4,16 @@
 import os.path
 from textwrap import dedent
 
+def initialize_packages(packages: dict, dir: str) -> None:
+    for package_name, module_descriptions in packages.items():
+        package_dir = os.path.join(dir, package_name)
+        os.mkdir(package_dir)
+
+        for relative_module_path, module_content in module_descriptions:
+            module_path = os.path.join(package_dir, relative_module_path)
+            os.makedirs(os.path.dirname(module_path), exist_ok=True)
+            with open(module_path, "w") as f:
+                print(module_content, file=f)
 
 def add_cyclic_import_to(directory: str) -> tuple[str, str, str, str, str, str]:
     package_name = "package123"
