@@ -9,6 +9,8 @@ import sys
 from ._engine import run
 from .version import VERSION
 
+_logger = logging.getLogger(__name__)
+
 
 def _inner_main(argv: list[str] | None = None):
     if argv is None:
@@ -70,7 +72,7 @@ def _inner_main(argv: list[str] | None = None):
 
             traceback.print_exc()
         else:
-            logging.error(e)  # noqa: TRY400
+            _logger.error(e)  # noqa: TRY400
     else:
         exit_code = 2 if cycles_count else 0
 
