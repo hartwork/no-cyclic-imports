@@ -15,7 +15,7 @@ from .._imports import (
     _stdlib_module_names,
     determine_path_of,
     determine_source_module_name,
-    determine_target_module_name,
+    determine_target_module_names,
     in_standard_library,
     toplevel_package_of,
     without_dot_init,
@@ -93,44 +93,43 @@ class DetermineSourceModuleName(TestCase):
 class DetermineTargetModuleName(TestCase):
     @parameterized.expand(
         [
-            ("import package123", (None, "package123", None, None), "package123"),
             (
                 "from package123 import symbol123",
                 ("package123", "symbol123", None, 0),
-                "package123",
+                ["package123"],
             ),
             (
                 "from package123 import symbol123 as alias123",
                 ("package123", "symbol123", "alias123", 0),
-                "package123",
+                ["package123"],
             ),
             (
                 "from . import symbol123",
                 (None, "symbol123", None, 1),
-                "no_cyclic_imports.tests",
+                ["no_cyclic_imports.tests"],
             ),
             (
                 "from .. import symbol123",
                 (None, "symbol123", None, 2),
-                "no_cyclic_imports",
+                ["no_cyclic_imports"],
             ),
             (
                 "from .module123 import symbol123",
                 ("module123", "symbol123", None, 1),
-                "no_cyclic_imports.tests.module123",
+                ["no_cyclic_imports.tests.module123"],
             ),
             (
                 "from ..module123 import symbol123",
                 ("module123", "symbol123", None, 2),
-                "no_cyclic_imports.module123",
+                ["no_cyclic_imports.module123"],
             ),
         ],
     )
-    def test(self, _label, ast_imports_quad, expected_target_module_name):
+    def test(self, _label, ast_imports_quad, expected_target_module_names):
         source_module_name = determine_source_module_name(__file__)
         module_name_or_none, object_name, as_name, depth_or_none = ast_imports_quad
 
-        actual_target_module_name = determine_target_module_name(
+        actual_target_module_names = determine_target_module_names(
             source_module_name,
             module_name_or_none,
             object_name,
@@ -138,7 +137,7 @@ class DetermineTargetModuleName(TestCase):
             depth_or_none,
         )
 
-        self.assertEqual(actual_target_module_name, expected_target_module_name)
+        self.assertCountEqual(actual_target_module_names, expected_target_module_names)
 
 
 class ImportGraphTest(TestCase):

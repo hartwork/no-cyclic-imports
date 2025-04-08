@@ -13,7 +13,7 @@ from parameterized import parameterized
 
 from ..__main__ import _inner_main
 from ..version import VERSION
-from .factories import add_cyclic_import_to
+from .factories import add_cyclic_import_to, add_short_cyclic_import_to
 
 
 class MainTest(TestCase):
@@ -90,6 +90,20 @@ class MainTest(TestCase):
 
         self.assertEqual("no-cyclic-imports: [INFO] " in stderr, expecting_info_lines)
         self.assertEqual("no-cyclic-imports: [DEBUG] " in stderr, expecting_debug_lines)
+
+    def test_short_cycle(
+        self,
+    ):
+        with TemporaryDirectory() as tempdir:
+            _, a_py, b_py, package_name, package_a_name, package_b_name = (
+                add_short_cyclic_import_to(tempdir)
+            )
+            exit_code, stdout, stderr = self._invoke(
+                "--no-follow",
+                tempdir,
+            )
+
+        self.assertFalse(exit_code == 0)
 
     @parameterized.expand(
         [
