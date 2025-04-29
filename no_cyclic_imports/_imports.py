@@ -109,36 +109,61 @@ def without_dot_init(module_name):
     return module_name[: -len(".__init__")]
 
 
-def determine_target_module_name(
+def determine_target_module_names(
     source_module: str,
     module_name_or_none: str | None,
     object_name: str,
     as_name: str | None,
     depth_or_none: int | None,
-) -> str:
+) -> list[str]:
     source_module_split = source_module.split(".")
 
-    if depth_or_none is None:
-        if module_name_or_none is None:
-            target_module = object_name  # case "import <object_name>"
-        else:
-            # case "from <module_name_or_none> import <object_name>"
-            target_module = module_name_or_none
-    else:  # case "from [..] import [..]"
-        if module_name_or_none is None:
-            target_module_path = source_module_split[:-depth_or_none]
-        else:
-            target_module_path = source_module_split[:-depth_or_none] + [
-                module_name_or_none,
-            ]
-        target_module = ".".join(target_module_path)
+    target_object_split = [
+        *(
+            source_module_split[:-depth_or_none] if depth_or_none else []
+        ),  # i.e., if depth_or_none in [None, 0]
+        *(module_name_or_none.split(".") if module_name_or_none is not None else []),
+        *(object_name.split(".")),
+    ]
+
+    target_object = ".".join(target_object_split)
+
+    # if the target object does not correspond to a file or directory,
+    # it must be a symbol in a `.py` file,
+    # hence the target module is one level up.
+    try:
+        determine_path_of(target_object)
+        target_is_module = True
+    except PythonSourceNotFoundError:
+        target_is_module = False
+
+    if target_is_module:
+        target_module_split = target_object_split
+    else:
+        target_module_split = target_object_split[:-1]
+
+    assert len(target_module_split) >= 1
+
+    target_module = ".".join(target_module_split)
 
     _logger.debug(
         f"Import {(module_name_or_none, object_name, as_name, depth_or_none)}"
         f" from module {source_module!r} found to target module {target_module!r}.",
     )
 
-    return target_module
+    source_module_provenance = [
+        ".".join(source_module_split[:i])
+        for i in range(1, len(source_module_split) + 1)
+    ]
+
+    implicit_target_modules = []
+    for j in range(len(target_module_split) - 1, 0, -1):
+        ancestor = ".".join(target_module_split[:j])
+        if ancestor in source_module_provenance:
+            break
+        implicit_target_modules.append(ancestor)
+
+    return [target_module, *implicit_target_modules]
 
 
 def _wrapped_ast_imports(abs_path):
@@ -188,23 +213,26 @@ class ImportGraph:
         ) in _wrapped_ast_imports(
             abs_path,
         ):
-            target_module = determine_target_module_name(
+            target_module_candidates = determine_target_module_names(
                 source_module,
                 module_name_or_none,
                 object_name,
                 as_name,
                 depth_or_none,
             )
-            target_module = without_dot_init(target_module)
+            for target_module_candidate in map(
+                without_dot_init,
+                target_module_candidates,
+            ):
+                if in_standard_library(target_module_candidate):
+                    continue
 
-            if in_standard_library(target_module):
-                continue
-
-            if target_module not in target_modules:
-                _logger.info(
-                    f"Recording import from {source_module!r} to {target_module!r}...",
-                )
-            target_modules.add(target_module)
+                if target_module_candidate not in target_modules:
+                    _logger.info(
+                        f"Recording import from {source_module!r}"
+                        f"to {target_module_candidate!r}...",
+                    )
+                target_modules.add(target_module_candidate)
 
         if follow and target_modules:
             for module_name in target_modules:
