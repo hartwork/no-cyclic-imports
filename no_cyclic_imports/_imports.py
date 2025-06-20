@@ -57,7 +57,8 @@ def determine_path_of(module_name: str, _breadcrumbs: list[str] | None = None) -
     for path in sys.path:
         module_candidate_path = os.path.join(
             path,
-            *(module_name_split[:-1] + [module_name_split[-1] + ".py"]),
+            *(module_name_split[:-1]),
+            module_name_split[-1] + ".py",
         )
         if os.path.exists(module_candidate_path):
             return module_candidate_path
@@ -128,7 +129,8 @@ def determine_target_module_name(
         if module_name_or_none is None:
             target_module_path = source_module_split[:-depth_or_none]
         else:
-            target_module_path = source_module_split[:-depth_or_none] + [
+            target_module_path = [
+                *source_module_split[:-depth_or_none],
                 module_name_or_none,
             ]
         target_module = ".".join(target_module_path)
