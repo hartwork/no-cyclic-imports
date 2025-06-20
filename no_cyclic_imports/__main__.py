@@ -4,7 +4,9 @@
 import argparse
 import logging
 import os
+import signal
 import sys
+import traceback
 
 from ._engine import run
 from .version import VERSION
@@ -68,8 +70,6 @@ def _inner_main(argv: list[str] | None = None):
         cycles_count = run(config.paths, follow=bool(config.follow), file_=sys.stdout)
     except Exception as e:  # noqa: BLE001
         if config.debug:
-            import traceback
-
             traceback.print_exc()
         else:
             _logger.error(e)  # noqa: TRY400
@@ -83,8 +83,6 @@ def _main():
     try:
         _inner_main()
     except KeyboardInterrupt:
-        import signal
-
         sys.exit(128 + signal.SIGINT)
 
 

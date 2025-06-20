@@ -18,7 +18,7 @@ def toplevel_package_of(module_name: str) -> str:
 
 
 def _initialize_stdlib_module_names():
-    from stdlib_list.base import long_versions, stdlib_list
+    from stdlib_list.base import long_versions, stdlib_list  # noqa: PLC0415
 
     for long_version in long_versions:
         _stdlib_module_names.update(stdlib_list(long_version))
