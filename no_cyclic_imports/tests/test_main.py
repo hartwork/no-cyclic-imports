@@ -70,7 +70,7 @@ class MainTest(TestCase):
         expecting_debug_lines,
     ):
         with TemporaryDirectory() as tempdir:
-            _, a_py, b_py, package_name, package_a_name, package_b_name = (
+            _, _a_py, _b_py, package_name, package_a_name, package_b_name = (
                 add_cyclic_import_to(tempdir)
             )
             exit_code, stdout, stderr = self._invoke(
