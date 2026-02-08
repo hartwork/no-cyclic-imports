@@ -14,7 +14,7 @@ _stdlib_module_names = set()  # initialized via _initialize_stdlib_module_names(
 
 
 def toplevel_package_of(module_name: str) -> str:
-    return module_name.split(".")[0]
+    return module_name.split(".", maxsplit=1)[0]
 
 
 def _initialize_stdlib_module_names():
