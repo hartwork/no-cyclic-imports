@@ -84,3 +84,7 @@ ignore = [
   "T201",  # `print` found
   "TID252",  # Prefer absolute imports over relative imports from parent modules
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["CPY001"]
+"no_cyclic_imports/version.py" = ["CPY001"]
