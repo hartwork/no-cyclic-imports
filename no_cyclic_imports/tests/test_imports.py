@@ -3,10 +3,12 @@
 
 import os
 import pkgutil
-from tempfile import TemporaryDirectory
+from itertools import product
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import Mock
 
+from import_deps import ast_imports
 from parameterized import parameterized
 
 from .._imports import (
@@ -139,6 +141,52 @@ class DetermineTargetModuleName(TestCase):
         )
 
         self.assertEqual(actual_target_module_name, expected_target_module_name)
+
+
+class AstWrapperAndDetermineTargetModuleName(TestCase):
+    @parameterized.expand(
+        list(
+            product(
+                [
+                    "from . import sub_module",
+                    "from . import sub_module as sub_module_alias",
+                    "from .sub_module import my_variable",
+                    "from package.a_module.sub_module import my_variable",
+                    "from package.a_module import sub_module",
+                    "from package.a_module import sub_module as sub_module_alias",
+                    "import package.a_module.sub_module",
+                ],
+                [True, False],
+            ),
+        ),
+    )
+    def test_from_import_line(self, import_statement: str, import_from_init: bool):  # noqa: FBT001
+        """
+        Test if correct target is deduced from import statement.
+
+        Suppose from package.a_module we want to target package.a_module.sub_module
+        in an import statement
+        """
+        source_module = (
+            "package.a_module.__init__" if import_from_init else "package.a_module"
+        )
+
+        with NamedTemporaryFile(mode="w+") as tempfile:
+            tempfile.write(import_statement)
+            tempfile.seek(0)
+            ast_imports_quads = ast_imports(file_path=tempfile.name)
+        assert len(ast_imports_quads) == 1
+        module_name_or_none, object_name, as_name, depth_or_none = ast_imports_quads[0]
+
+        target_module = determine_target_module_name(
+            source_module,
+            module_name_or_none,
+            object_name,
+            as_name,
+            depth_or_none,
+        )
+
+        self.assertEqual("package.a_module.sub_module", target_module)
 
 
 class ImportGraphTest(TestCase):
