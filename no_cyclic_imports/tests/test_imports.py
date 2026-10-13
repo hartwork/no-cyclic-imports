@@ -1,8 +1,8 @@
 # Copyright (c) 2024 Sebastian Pipping <sebastian@pipping.org>
 # Licensed under Affero GPL v3 or later
 
+import importlib
 import os
-import pkgutil
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import Mock
@@ -54,7 +54,10 @@ class DeterminePathOfTest(TestCase):
     @parameterized.expand(
         [
             (__name__, __file__),
-            ("stdlib_list.base", pkgutil.get_loader("stdlib_list.base").get_filename()),
+            (
+                "stdlib_list.base",
+                importlib.util.find_spec("stdlib_list.base").loader.get_filename(),
+            ),
         ],
     )
     def test(self, module_name, expected_path):
