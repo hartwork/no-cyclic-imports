@@ -212,7 +212,7 @@ class ImportGraph:
             for module_name in target_modules:
                 try:
                     self._add_module(module_name, follow=True)
-                except PythonSourceNotFoundError as e:  # noqa: PERF203
+                except PythonSourceNotFoundError as e:
                     if e.most_generic_module_name not in self._tried_to_follow:
                         _logger.warning(e)
                     self._tried_to_follow.update(e.module_names)
