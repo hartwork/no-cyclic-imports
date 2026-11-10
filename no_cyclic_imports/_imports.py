@@ -146,7 +146,7 @@ def determine_target_module_name(
 def _wrapped_ast_imports(abs_path):
     try:
         yield from ast_imports(abs_path)
-    except UnicodeDecodeError as e:
+    except (SyntaxError, UnicodeDecodeError) as e:
         _logger.warning(f"Parse error for file {abs_path!r}: {e}")
 
 
