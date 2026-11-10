@@ -42,6 +42,25 @@ class MainTest(TestCase):
         self.assertIn("usage: no-cyclic-imports", stdout)
         self.assertEqual(stderr, "")
 
+    def test_syntax_error_file_does_not_abort_scan(self):
+        with TemporaryDirectory() as tempdir:
+            _, _, _, package_name, package_a_name, package_b_name = (
+                add_cyclic_import_to(tempdir)
+            )
+            with open(os.path.join(tempdir, "broken.py"), "w") as f:
+                f.write("def broken(:\n")
+
+            exit_code, stdout, stderr = self._invoke("--no-follow", tempdir)
+
+        self.assertEqual(exit_code, 2)
+        self.assertIn(
+            f"{package_name} -> {package_a_name} -> {package_b_name}"
+            f" -> {package_name}",
+            stdout,
+        )
+        self.assertIn("1 cycle(s).", stdout)
+        self.assertIn("Parse error", stderr)
+
     def test_empty_directory__explicit(self):
         with TemporaryDirectory() as tempdir:
             self.assertEqual(self._invoke(tempdir), (0, "0 cycle(s).\n", ""))
